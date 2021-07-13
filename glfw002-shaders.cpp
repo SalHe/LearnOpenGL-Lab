@@ -50,10 +50,11 @@ int main(int argc, char const *argv[])
                              "layout (location = 1) in vec3 aColor\n;"
                              "\n"
                              "out vec3 ourColor;\n"
+                             "uniform float deltaX;\n"
                              "\n"
                              "void main()\n"
                              "{\n"
-                             "   gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);\n"
+                             "   gl_Position = vec4(aPos.x + deltaX, aPos.y, aPos.z, 1.0);\n"
                              "   ourColor = aColor;\n"
                              "}\n";
         glShaderSource(vertexShader, 1, &source, nullptr);
@@ -102,6 +103,11 @@ int main(int argc, char const *argv[])
             glGetProgramInfoLog(shaderProgram, 512, nullptr, log);
             std::cout << "Error when link shader program: " << log << std::endl;
         }
+    }
+    {
+        glUseProgram(shaderProgram);
+        GLint position = glGetUniformLocation(shaderProgram, "deltaX");
+        glUniform1f(position, 0.5f);
     }
 
     glDeleteShader(vertexShader);
