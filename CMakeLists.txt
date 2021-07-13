@@ -18,6 +18,6 @@ add_library(glad STATIC "./deps/glad/src/glad.c"
 link_directories("./deps/glfw/lib")
 link_libraries(glfw3 ${OPENGL_LIBRARIES} glad)
 
-add_executable(Glfw001 glfw001.cpp)
-add_executable(Glfw002Shaders glfw002-shaders.cpp)
-add_executable(Glfw003Textures glfw003-textures.cpp)
+add_executable(Glfw001 "./src/glfw001.cpp")
+add_executable(Glfw002Shaders "./src/glfw002-shaders.cpp")
+add_executable(Glfw003Textures "./src/glfw003-textures.cpp")

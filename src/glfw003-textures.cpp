@@ -170,7 +170,7 @@ int main(int argc, char const *argv[])
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         
-        data = stbi_load("container.jpg", &width, &height, &channels, 0);
+        data = stbi_load("./textures/container.jpg", &width, &height, &channels, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(data);
@@ -184,7 +184,7 @@ int main(int argc, char const *argv[])
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_set_flip_vertically_on_load(true);
-        data = stbi_load("awesomeface.png", &width, &height, &channels, 0);
+        data = stbi_load("./textures/awesomeface.png", &width, &height, &channels, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(data);
