@@ -5,6 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
 
+static float texFactor = 0.2f;
+
 int main(int argc, char const *argv[])
 {
     if (!glfwInit())
@@ -81,11 +83,12 @@ int main(int argc, char const *argv[])
                              "\n"
                              "uniform sampler2D texture1;\n"
                              "uniform sampler2D texture2;\n"
+                             "uniform float texFactor;\n"
                              "\n"
                              "void main()\n"
                              "{\n"
                              //  "   FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
-                             "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(-TexCoord.x, TexCoord.y)), 0.2);\n"
+                             "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), texFactor);\n"
                              "}\n";
         glShaderSource(fragmentShader, 1, &source, nullptr);
         glCompileShader(fragmentShader);
@@ -128,10 +131,10 @@ int main(int argc, char const *argv[])
     {
         float vertices[] = {
             //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.65f, 0.65f,   // 右上
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.65f, 0.45f,  // 右下
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.45f, 0.45f, // 左下
-            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.45f, 0.65f   // 左上
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // 右上
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // 右下
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // 左下
+            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // 左上
         };
 
         int indices[] = {
@@ -162,10 +165,10 @@ int main(int argc, char const *argv[])
         // texture 1
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         
         data = stbi_load("container.jpg", &width, &height, &channels, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -177,8 +180,8 @@ int main(int argc, char const *argv[])
         glBindTexture(GL_TEXTURE_2D, texture2);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         stbi_set_flip_vertically_on_load(true);
         data = stbi_load("awesomeface.png", &width, &height, &channels, 0);
@@ -193,11 +196,17 @@ int main(int argc, char const *argv[])
         {
             break;
         }
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+            texFactor += 0.001f;
+        } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+            texFactor -= 0.001f;
+        }
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
+        glUniform1f(glGetUniformLocation(shaderProgram, "texFactor"), texFactor);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
