@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
                              "\n"
                              "void main()\n"
                              "{\n"
-                             "   gl_Position = vec4(aPos, 1.0);\n"
+                             "   gl_Position = vec4(aPos.x, -aPos.y, aPos.z, 1.0);\n"
                              "   ourColor = aColor;\n"
                              "}\n";
         glShaderSource(vertexShader, 1, &source, nullptr);
