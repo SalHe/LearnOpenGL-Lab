@@ -21,3 +21,4 @@ link_directories("./glfw/lib")
 link_libraries(glfw3 ${OPENGL_LIBRARIES} glad)
 
 add_executable(Glfw001 glfw001.cpp)
+add_executable(Glfw002Shaders glfw002-shaders.cpp)
