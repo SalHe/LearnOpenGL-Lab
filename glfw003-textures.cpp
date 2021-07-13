@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
                              "void main()\n"
                              "{\n"
                              //  "   FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
-                             "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);\n"
+                             "   FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(-TexCoord.x, TexCoord.y)), 0.2);\n"
                              "}\n";
         glShaderSource(fragmentShader, 1, &source, nullptr);
         glCompileShader(fragmentShader);
