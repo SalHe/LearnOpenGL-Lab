@@ -196,13 +196,6 @@ int main(int argc, char const *argv[])
         stbi_image_free(data);
     }
 
-    glm::mat4 trans(1.0f);
-    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-    glUseProgram(shaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"),
-                       1, GL_FALSE, glm::value_ptr(trans));
-
     while (!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -222,6 +215,13 @@ int main(int argc, char const *argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
+
+        glm::mat4 trans(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"),
+                           1, GL_FALSE, glm::value_ptr(trans));
+
         glUniform1f(glGetUniformLocation(shaderProgram, "texFactor"), texFactor);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
