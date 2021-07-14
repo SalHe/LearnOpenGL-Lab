@@ -5,6 +5,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 static float texFactor = 0.2f;
 
 int main(int argc, char const *argv[])
@@ -22,7 +26,7 @@ int main(int argc, char const *argv[])
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "Glfw002Shaders", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(800, 600, "Glfw004Matrix", nullptr, nullptr);
     if (!window)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -58,11 +62,13 @@ int main(int argc, char const *argv[])
                              "out vec3 ourColor;\n"
                              "out vec2 TexCoord;\n"
                              "\n"
+                             "uniform mat4 transform;\n"
+                             "\n"
                              "void main()\n"
                              "{\n"
-                             "   gl_Position = vec4(aPos, 1.0);\n"
+                             "   gl_Position = transform * vec4(aPos, 1.0);\n"
                              "   ourColor = aColor;\n"
-                             "   TexCoord = aTexCoord;\n"
+                             "   TexCoord = vec2(aTexCoord.x, 1.0 - aTexCoord.y);\n"
                              "}\n";
         glShaderSource(vertexShader, 1, &source, nullptr);
         glCompileShader(vertexShader);
@@ -160,7 +166,7 @@ int main(int argc, char const *argv[])
     glGenTextures(1, &texture2);
     {
         int width, height, channels;
-        unsigned char * data;
+        unsigned char *data;
 
         // texture 1
         glActiveTexture(GL_TEXTURE0);
@@ -169,7 +175,7 @@ int main(int argc, char const *argv[])
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
+
         data = stbi_load("./textures/container.jpg", &width, &height, &channels, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -190,15 +196,25 @@ int main(int argc, char const *argv[])
         stbi_image_free(data);
     }
 
+    glm::mat4 trans(1.0f);
+    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"),
+                       1, GL_FALSE, glm::value_ptr(trans));
+
     while (!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             break;
         }
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        {
             texFactor += 0.001f;
-        } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+        }
+        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        {
             texFactor -= 0.001f;
         }
 
