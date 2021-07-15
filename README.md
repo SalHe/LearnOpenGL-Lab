@@ -1,4 +1,4 @@
-# GLFW-Lab
+# LearnOpenGL-Lab
 
 My code lab for Learn OpenGL based on GLFW, glad. All of these codes for studying.
 

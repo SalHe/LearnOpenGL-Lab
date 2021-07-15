@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.17)
 
-project("glfw-lab")
+project("LearnOpenGL-Lab")
 
 # packages
 find_package(OpenGL REQUIRED)
