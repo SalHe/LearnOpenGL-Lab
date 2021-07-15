@@ -225,6 +225,8 @@ int main(int argc, char const *argv[])
         stbi_image_free(data);
     }
 
+    glEnable(GL_DEPTH_TEST);
+
     while (!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -241,7 +243,7 @@ int main(int argc, char const *argv[])
         }
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
         glm::mat4 model(1.0f);
