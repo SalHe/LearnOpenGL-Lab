@@ -11,6 +11,21 @@
 
 static float texFactor = 0.2f;
 
+// camera parameters
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+bool firstMouse = true;
+float yaw   = -90.0f;	// yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
+float pitch =  0.0f;
+float lastX =  800.0f / 2.0;
+float lastY =  600.0 / 2.0;
+float fov   =  45.0f;
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
 int main(int argc, char const *argv[])
 {
     if (!glfwInit())
@@ -45,14 +60,11 @@ int main(int argc, char const *argv[])
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *win, int width, int height)
                                    { glViewport(0, 0, width, height); });
 
-    // int nrAttributes;
-    // glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-    // std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
-
     // Prepare the shader program
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
+    // vertex shader
     {
         const char *source = "#version 330 core\n"
                              "layout (location = 0) in vec3 aPos;\n"
@@ -80,6 +92,7 @@ int main(int argc, char const *argv[])
             std::cout << "Error when compile vertex shader: " << log << std::endl;
         }
     }
+    // fragment shader
     {
         const char *source = "#version 330 core\n"
                              "out vec4 FragColor;\n"
@@ -225,8 +238,10 @@ int main(int argc, char const *argv[])
         stbi_image_free(data);
     }
 
+    // enable depth test
     glEnable(GL_DEPTH_TEST);
 
+    // cube postions
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3(2.0f, 5.0f, -15.0f),
@@ -240,40 +255,82 @@ int main(int argc, char const *argv[])
         glm::vec3(-1.3f, 1.0f, -1.5f),
     };
 
+    double lastTime = glfwGetTime();
+
+    // mouse control the camera's pitch and yaw
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
     while (!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             break;
         }
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            texFactor += 0.001f;
+            // control the mix factor
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+            {
+                texFactor += 0.001f;
+            }
+            else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+            {
+                texFactor -= 0.001f;
+            }
         }
-        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+
         {
-            texFactor -= 0.001f;
+            // move camera
+            double currentTime = glfwGetTime();
+            double dt = currentTime - lastTime;
+            lastTime = currentTime;
+            float cameraSpeed = 2.5f * dt; // adjust accordingly
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                cameraPos += cameraSpeed * cameraFront;
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                cameraPos -= cameraSpeed * cameraFront;
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
         }
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // update camera parameters
+        glm::vec3 direction;
+        direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw)); // 译注：direction代表摄像机的前轴(Front)，这个前轴是和本文第一幅图片的第二个摄像机的方向向量是相反的
+        direction.y = sin(glm::radians(pitch));
+        direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+        cameraFront = glm::normalize(direction);
+
+        // activate shader
         glUseProgram(shaderProgram);
-        glm::mat4 view(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        // apply camera
+        glm::mat4 view;
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glm::mat4 projection(1.0f);
-        projection = glm::perspective(glm::radians(45.0f), 800 / 600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), 800 / 600.0f, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"),
                            1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"),
                            1, GL_FALSE, glm::value_ptr(projection));
+
+        // update the mix factor
         glUniform1f(glGetUniformLocation(shaderProgram, "texFactor"), texFactor);
+
+        // activate the textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
         glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+
+        // draw cubes
         glBindVertexArray(VAO);
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -286,6 +343,7 @@ int main(int argc, char const *argv[])
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -295,4 +353,48 @@ int main(int argc, char const *argv[])
     glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
+}
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f; // change this value to your liking
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    // make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+  if(fov >= 1.0f && fov <= 45.0f)
+    fov -= yoffset;
+  if(fov <= 1.0f)
+    fov = 1.0f;
+  if(fov >= 45.0f)
+    fov = 45.0f;
 }
