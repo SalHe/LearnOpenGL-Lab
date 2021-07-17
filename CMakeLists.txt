@@ -33,6 +33,7 @@ link_libraries(${LIBS})
 # demo by chapters
 set(CHAPTERS
     0.legacy
+    1.get_started
 )
 
 set(0.legacy
@@ -42,6 +43,9 @@ set(0.legacy
     4.matrix
     5.coordinate
     6.camera
+)
+set(1.get_started
+    10.review
 )
 
 foreach(CHAPTER ${CHAPTERS})
