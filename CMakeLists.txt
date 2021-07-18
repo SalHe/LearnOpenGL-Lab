@@ -51,6 +51,7 @@ set(1.get_started
 set(2.lighting
     1.colors
     2.1.lighting_ambient
+    2.2.lighting_diffuse
 )
 
 foreach(CHAPTER ${CHAPTERS})
