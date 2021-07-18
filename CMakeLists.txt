@@ -34,6 +34,7 @@ link_libraries(${LIBS})
 set(CHAPTERS
     0.legacy
     1.get_started
+    2.lighting
 )
 
 set(0.legacy
@@ -46,6 +47,9 @@ set(0.legacy
 )
 set(1.get_started
     10.review
+)
+set(2.lighting
+    1.colors
 )
 
 foreach(CHAPTER ${CHAPTERS})
