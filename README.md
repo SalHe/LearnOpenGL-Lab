@@ -20,6 +20,7 @@ My code lab for Learn OpenGL based on GLFW, glad. All of these codes for studyin
 - [GLFW](https://github.com/glfw/glfw). The `.lib` file for GLFW is for Windows x64.
 - [glad](https://github.com/Dav1dde/glad)
 - [stb](https://github.com/nothings/stb)
+- [ImGui](https://github.com/ocornut/imgui)
 
 ## Knowledgement
 
