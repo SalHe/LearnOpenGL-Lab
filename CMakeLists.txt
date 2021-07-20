@@ -53,6 +53,7 @@ set(2.lighting
     2.1.lighting_ambient
     2.2.lighting_diffuse
     2.3.specular_highlight
+    2.4.1.exercise1
 )
 
 foreach(CHAPTER ${CHAPTERS})
