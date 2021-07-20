@@ -2,7 +2,7 @@
 
 My code lab for Learn OpenGL based on GLFW, glad. All of these codes for studying.
 
-## TODO Exercies
+## TODO Exercises
 
 - Basic Lighting
 
