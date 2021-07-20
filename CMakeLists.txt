@@ -14,11 +14,16 @@ link_directories("./lib")
 add_library(stb_image "./deps/stb/src/stb_image.c")
 add_library(glad STATIC "./deps/glad/src/glad.c")
 
+file(GLOB IMGUI_SOURCE "deps/ImGui/src/*.cpp" "deps/ImGui/src/backends/*.cpp")
+add_library(ImGui STATIC ${IMGUI_SOURCE})
+target_include_directories(ImGui PRIVATE "include/ImGui" "include/ImGui/backends")
+
 set(LIBS
     ${OPENGLE_LIBRARIES}
     glfw3
     glad
     stb_image
+    ImGui
 )
 link_libraries(${LIBS})
 
@@ -54,6 +59,7 @@ set(2.lighting
     2.2.lighting_diffuse
     2.3.specular_highlight
     2.4.1.exercise1
+    2.4.2.exercise2
 )
 
 foreach(CHAPTER ${CHAPTERS})
