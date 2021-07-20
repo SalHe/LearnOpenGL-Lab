@@ -2,6 +2,13 @@
 
 My code lab for Learn OpenGL based on GLFW, glad. All of these codes for studying.
 
+## TODO Exercies
+
+- Basic Lighting
+
+  - [ ] Do Phong shading in view space instead of world space: solution.
+  - [ ] Implement Gouraud shading instead of Phong shading. If you did things right the lighting should look a bit off (especially the specular highlights) with the cube object. Try to reason why it looks so weird: solution.
+
 ## Environments
 
 - [CMake](https://cmake.org/)
